@@ -1,0 +1,4 @@
+rootProject.name = 'homework-ips'
+
+include 'service'
+include 'service:payment-service'

@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: payment-service
+
+  datasource:
+    url: r2dbc:mysql://localhost:3306/my_database
+    username: root
+    password: root_password
