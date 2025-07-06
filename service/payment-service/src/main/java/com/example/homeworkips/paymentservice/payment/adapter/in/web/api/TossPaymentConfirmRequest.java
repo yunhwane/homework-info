@@ -11,5 +11,5 @@ import lombok.ToString;
 public class TossPaymentConfirmRequest {
     private String paymentKey;
     private String orderId;
-    private String amount;
+    private Long amount;
 }

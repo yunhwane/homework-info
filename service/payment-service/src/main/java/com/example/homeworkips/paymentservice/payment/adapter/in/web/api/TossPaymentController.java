@@ -2,7 +2,9 @@ package com.example.homeworkips.paymentservice.payment.adapter.in.web.api;
 
 
 import com.example.homeworkips.paymentservice.common.ApiResponse;
-import com.example.homeworkips.paymentservice.payment.adapter.out.web.executor.TossPaymentExecutor;
+import com.example.homeworkips.paymentservice.payment.application.port.in.PaymentConfirmCommand;
+import com.example.homeworkips.paymentservice.payment.application.port.in.PaymentConfirmUseCase;
+import com.example.homeworkips.paymentservice.payment.domain.PaymentConfirmationResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,16 +20,19 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class TossPaymentController {
 
-    private final TossPaymentExecutor tossPaymentExecutor;
+    private final PaymentConfirmUseCase paymentConfirmUseCase;
 
     @PostMapping("/confirm")
-    public Mono<ResponseEntity<ApiResponse<String>>> confirm(@RequestBody TossPaymentConfirmRequest request) {
-        return tossPaymentExecutor.execute(request.getPaymentKey(), request.getOrderId(), request.getAmount())
-                .map(it ->
-                        ResponseEntity.ok(ApiResponse.with(
-                                HttpStatus.OK,
-                                "OK",
+    public Mono<ResponseEntity<ApiResponse<PaymentConfirmationResult>>> confirm(@RequestBody TossPaymentConfirmRequest request) {
+        return paymentConfirmUseCase.confirm( PaymentConfirmCommand.create(
+                request.getPaymentKey(),
+                request.getOrderId(),
+                request.getAmount()
+        )).map(it -> ResponseEntity.ok(
+                ApiResponse.with(
+                        HttpStatus.OK,
+                        "OK",
                                 it
-                )));
+                        )));
     }
 }

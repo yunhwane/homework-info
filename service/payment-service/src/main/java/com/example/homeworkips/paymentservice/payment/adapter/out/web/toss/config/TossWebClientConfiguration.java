@@ -1,4 +1,4 @@
-package com.example.homeworkips.paymentservice.payment.adapter.out.web.config;
+package com.example.homeworkips.paymentservice.payment.adapter.out.web.toss.config;
 
 
 import org.springframework.beans.factory.annotation.Value;
