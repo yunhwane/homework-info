@@ -6,3 +6,9 @@ spring:
     url: r2dbc:mysql://localhost:3306/my_database
     username: root
     password: root_password
+
+toss:
+  payment:
+    api:
+      base-url: https://api.tosspayments.com
+      secretKey: test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6
