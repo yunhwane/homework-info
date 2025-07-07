@@ -1,11 +1,9 @@
 package com.example.homeworkips.paymentservice.payment.adapter.out.web.toss.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -23,8 +21,8 @@ public class TossPaymentConfirmationResponse {
     private Long totalAmount;
     private Long balanceAmount;
     private String status;
-    private LocalDateTime requestedAt;
-    private LocalDateTime approvedAt;
+    private String requestedAt;
+    private String approvedAt;
     private Boolean useEscrow;
     private String lastTransactionKey;
     private Long suppliedAmount;

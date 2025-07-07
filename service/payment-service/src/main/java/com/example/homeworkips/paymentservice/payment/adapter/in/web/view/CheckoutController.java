@@ -6,11 +6,13 @@ import com.example.homeworkips.paymentservice.payment.adapter.in.web.request.Che
 import com.example.homeworkips.paymentservice.payment.application.port.in.CheckoutCommand;
 import com.example.homeworkips.paymentservice.payment.application.port.in.CheckoutUseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class CheckoutController {
@@ -19,6 +21,9 @@ public class CheckoutController {
 
     @GetMapping("/")
     public Mono<String> checkout(CheckoutRequest request, Model model) {
+
+        log.info("Checkout request: {}", request.toString());
+
         return checkoutUseCase.checkout(CheckoutCommand.create(
                 request.getBuyerId(),
                 request.getAmount(),

@@ -7,6 +7,16 @@ spring:
     username: root
     password: root_password
 
+  thymeleaf:
+    cache: false
+
+logging:
+  level:
+    org:
+      springframework:
+        web: ERROR
+        r2dbc: ERROR
+        transaction: ERROR
 toss:
   payment:
     api:

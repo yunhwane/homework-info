@@ -67,11 +67,14 @@
             });
         });
 
+
+        const orderIds = "[[${orderId}]]";
+
         // ------ '결제하기' 버튼 누르면 결제창 띄우기 ------
         button.addEventListener("click", async function () {
             await widgets.requestPayment({
-                orderId: "FED3i-emnXAWdRb3qwmVX",
-                orderName: "토스 티셔츠 외 2건",
+                orderId: orderIds,
+                orderName: "포인트 충전 50,000원",
                 successUrl: window.location.origin + "/success",
                 failUrl: window.location.origin + "/fail",
                 customerEmail: "customer123@gmail.com",

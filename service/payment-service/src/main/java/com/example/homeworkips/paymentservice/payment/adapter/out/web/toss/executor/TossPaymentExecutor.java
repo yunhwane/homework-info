@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.concurrent.TimeoutException;
 
 @Component
@@ -64,7 +65,7 @@ public class TossPaymentExecutor implements PaymentExecutor {
                                 PaymentExtraDetails.create(
                                         PaymentType.from(it.getType()),
                                         PaymentMethod.from(it.getMethod()),
-                                        it.getApprovedAt(),
+                                        OffsetDateTime.parse(it.getApprovedAt()).toLocalDateTime(),
                                         it.getOrderName(),
                                         PSPConfirmationStatus.from(it.getStatus()),
                                         it.getTotalAmount(),

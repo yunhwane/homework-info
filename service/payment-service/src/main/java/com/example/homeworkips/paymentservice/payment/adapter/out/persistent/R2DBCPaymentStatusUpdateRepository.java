@@ -89,7 +89,7 @@ public class R2DBCPaymentStatusUpdateRepository implements PaymentStatusUpdateRe
         return databaseClient.sql(UPDATE_PAYMENT_EXTRA_DETAILS_QUERY)
                 .bind("type", command.extraDetails().getType().name())
                 .bind("method", command.extraDetails().getMethod().name())
-                .bind("approvedAt", command.extraDetails().getApprovedAt().toString())
+                .bind("approvedAt", command.extraDetails().getApprovedAt())
                 .bind("pspRawData", command.extraDetails().getPspRawData())
                 .bind("orderId", command.orderId())
                 .fetch()
@@ -132,8 +132,8 @@ public class R2DBCPaymentStatusUpdateRepository implements PaymentStatusUpdateRe
         }
 
         String INSERT_PAYMENT_HISTORY_QUERY = """
-                INSERT INTO payment_order_histories (
-                payment_order_id, previous_payment_status, new_status, reason)
+                INSERT INTO payment_histories (
+                payment_order_id, previous_status, new_status, reason)
                 VALUES (:paymentOrderId, :previousPaymentStatus, :newStatus, :reason)
                 """.trim();
 
