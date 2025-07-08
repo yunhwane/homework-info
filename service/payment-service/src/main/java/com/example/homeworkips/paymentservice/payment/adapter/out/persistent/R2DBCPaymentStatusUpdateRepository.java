@@ -4,8 +4,10 @@ package com.example.homeworkips.paymentservice.payment.adapter.out.persistent;
 import com.example.homeworkips.paymentservice.payment.adapter.out.persistent.dto.PaymentStatusQueryDto;
 import com.example.homeworkips.paymentservice.payment.application.port.out.PaymentStatusUpdateCommand;
 import com.example.homeworkips.paymentservice.payment.domain.PaymentStatus;
+import com.example.homeworkips.paymentservice.point.domain.PointEvent;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -17,6 +19,8 @@ public class R2DBCPaymentStatusUpdateRepository implements PaymentStatusUpdateRe
 
     private final DatabaseClient databaseClient;
     private final TransactionalOperator transactionalOperator;
+    private final ApplicationEventPublisher eventPublisher;
+
 
     @Override
     public Mono<Boolean> updatePaymentStatusToExecuting(String orderId, String paymentKey) {
@@ -75,6 +79,16 @@ public class R2DBCPaymentStatusUpdateRepository implements PaymentStatusUpdateRe
                 .flatMap(it -> insertPaymentHistory(it, PaymentStatus.SUCCESS, "PAYMENT_CONFIRMATION_IS_DONE"))
                 .flatMap(it -> updatePaymentEventStatus(command.status(), command.orderId()))
                 .flatMap(it -> updatePaymentExtraDetails(command))
+                .flatMap(it -> selectPaymentInfoForPointEvent(command.orderId()))
+                .doOnNext(payment -> {
+                    PointEvent pointEvent = PointEvent.from(
+                            payment.orderId(),
+                            payment.paymentKey(),
+                            payment.buyerId(),
+                            payment.amount()
+                    );
+                    eventPublisher.publishEvent(pointEvent);
+                })
                 .as(transactionalOperator::transactional)
                 .thenReturn(true);
     }
@@ -182,7 +196,29 @@ public class R2DBCPaymentStatusUpdateRepository implements PaymentStatusUpdateRe
                 });
     }
 
+    private Mono<PaymentInfoForPointEvent> selectPaymentInfoForPointEvent(String orderId) {
+        String SELECT_PAYMENT_INFO_QUERY = """
+                SELECT order_id, payment_key, buyer_id, amount
+                FROM payment_events
+                WHERE order_id = :orderId
+                """.trim();
 
+        return databaseClient.sql(SELECT_PAYMENT_INFO_QUERY)
+                .bind("orderId", orderId)
+                .fetch()
+                .one()
+                .map(row -> new PaymentInfoForPointEvent(
+                        row.get("order_id").toString(),
+                        row.get("payment_key") != null ? row.get("payment_key").toString() : "",
+                        ((Number) row.get("buyer_id")).longValue(),
+                        ((Number) row.get("amount")).longValue()
+                ));
+    }
 
-
+    private record PaymentInfoForPointEvent(
+            String orderId,
+            String paymentKey,
+            Long buyerId,
+            Long amount
+    ) {}
 }

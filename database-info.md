@@ -35,3 +35,15 @@ create table my_database.payment_histories
     updated_at     timestamp null on update CURRENT_TIMESTAMP
 );
 ```
+
+### point_events
+```sql
+create table my_database.point_events
+(
+    id             bigint auto_increment primary key,
+    buyer_id       bigint not null,
+    order_id       varchar(255) not null,
+    points        decimal(12, 2) not null,
+    point_type     enum ('REWARD', 'USE') null,
+);
+```
