@@ -1,11 +1,11 @@
-# Homework IPS - Multi-Service Application
+# Homework 2
 
-## 📋 프로젝트 개요
+## 프로젝트 개요
 
 Spring Boot 기반의 마이크로서비스 아키텍처를 사용한 멀티모듈 프로젝트입니다. 
 회원 관리와 결제 시스템을 분리된 서비스로 구현하여 확장성과 유지보수성을 향상시켰습니다.
 
-## 🏗️ 아키텍처
+## 아키텍처
 
 ```
 homework-ips/
@@ -43,7 +43,7 @@ homework-ips/
 > 포인트 결제는 결제 완료 후 이벤트 기반으로 포인트 적립하는 식으로 확장성을 고려하여 느슨하게 처리했습니다.
 
 
-## 🛠️ 기술 스택
+## 기술 스택
 
 ## 서비스 구성
 
@@ -154,7 +154,7 @@ docker compose up -d --build
 ./gradlew :service:payment-service:bootRun
 ```
 
-## 📋 API 명세서
+## API 명세서
 
 ### Member Service API (http://localhost:8080)
 
