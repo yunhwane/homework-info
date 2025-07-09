@@ -39,6 +39,17 @@ public class QueryDslMemberRepository {
                 .fetch();
     }
 
+    public List<Member> findAllByIds(List<Long> memberIds) {
+        if (memberIds.isEmpty()) {
+            return List.of();
+        }
+
+        return jpaQueryFactory
+                .selectFrom(member)
+                .where(member.id.in(memberIds))
+                .fetch();
+    }
+
     private OrderSpecifier<?> createOrderSpecifier(SortType sortType, Direction direction) {
         Order order = direction == Direction.ASC ? Order.ASC : Order.DESC;
 

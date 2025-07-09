@@ -15,6 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -40,9 +44,27 @@ public class MemberPersistentAdapter implements
 
     @Override
     public List<Member> findAll(SortType sortType, Direction direction, Long offset, Long limit) {
+
+        if (sortType == SortType.VIEW_COUNT) {
+
+            List<Long> memberIds = redisMemberViewCountRepository.findTopByViewCount(direction, offset, limit);
+
+            if (!memberIds.isEmpty()) {
+                Map<Long, Member> memberMap = queryDslMemberRepository.findAllByIds(memberIds)
+                        .stream()
+                        .collect(Collectors.toMap(Member::getId, Function.identity()));
+
+                return memberIds.stream()
+                        .map(memberMap::get)
+                        .filter(Objects::nonNull)
+                        .peek(member -> member.addViewCount(redisMemberViewCountRepository.read(member.getId())))
+                        .toList();
+            }
+        }
+
         return queryDslMemberRepository.findAll(sortType, direction, offset, limit)
-                .stream().peek(
-                        it -> it.addViewCount(redisMemberViewCountRepository.read(it.getId()))
+                .stream().peek(it ->
+                        it.addViewCount(redisMemberViewCountRepository.read(it.getId()))
                 ).toList();
     }
 
