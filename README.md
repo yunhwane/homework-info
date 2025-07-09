@@ -33,9 +33,17 @@
 - EC2, RDS, S3, Redis 등을 활용하여 AWS 기반으로 인프라를 구성할 것입니다.
 - **github Actions**, **docker** : GitHub Actions를 활용하여 CI/CD 파이프라인을 구축할 것입니다.
 > 기존 github Action 을 활용하여, 자동 테스트 실행 후 테스트 완료 시 blue/green 배포 전략을 적용한 경험이 있어 선택했습니다.
-> 또한, AWS EC2, RDS, S3, Redis 등을 활용하여 인프라를 구성하되, docker compose 를 이용하여 나중 스케일 아웃에 대비하여 구성할 것 같습니다.
-- **모니터링**: Prometheus와 Grafana를 활용하여 시스템 모니터링을 구축할 것입니다.
+> 시스템의 크기의 따라 배포 전략은 변경될 것 같습니다.
+> ## 초기 배포 프로세스
+> 1. ECR 활용하여 docker file 저장
+> 2. CodeDeploy + github action: 자동 테스트 및 blue/green 배포
+> 3. PR Lint/Test 자동화
+> 4. main 머지 시 Docker 이미지 빌드 → ECR Push → CodeDeploy Trigger
+> 보안 그룹 + VPC 서브넷으로 네트워크 제한
+- **모니터링**: Prometheus와 Grafana를 활용하여 시스템 모니터링을 구축
 
+### 향후 확장
+- 모놀리식에서 도메인 단위로 컨테이너화 진행하면서 쿠버네티스로 전환하여 자동으로 확장하고 운영을 최적화 할 것 같습니다.
 
 # Homework 2
 
