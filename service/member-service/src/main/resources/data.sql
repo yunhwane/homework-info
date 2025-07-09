@@ -49,3 +49,4 @@ INSERT INTO my_database.members (username, view_count, registered_at, created_at
 INSERT INTO my_database.members (username, view_count, registered_at, created_at, updated_at) VALUES ('임다은', 0, NOW(), NOW(), NOW());
 INSERT INTO my_database.members (username, view_count, registered_at, created_at, updated_at) VALUES ('한지우', 0, NOW(), NOW(), NOW());
 INSERT INTO my_database.members (username, view_count, registered_at, created_at, updated_at) VALUES ('조민성', 0, NOW(), NOW(), NOW());
+INSERT INTO my_database.members (username, view_count, registered_at, created_at, updated_at) VALUES ('조민성', 0, NOW(), NOW(), NOW());
