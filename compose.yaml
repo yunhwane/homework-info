@@ -1,6 +1,6 @@
 services:
   mysql:
-    image: mysql:latest
+    image: mysql:8.0
     container_name: mysql_container
     environment:
       MYSQL_ROOT_PASSWORD: root_password
@@ -11,6 +11,17 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --bind-address=0.0.0.0
+      --innodb-use-native-aio=0
+      --skip-name-resolve
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+      start_period: 40s
 
   redis:
     image: redis:latest
@@ -19,7 +30,62 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 10s
+      retries: 5
 
+  member-service:
+    build:
+      context: .
+      dockerfile: service/member-service/Dockerfile
+    container_name: member_service_container
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/my_database?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root_password
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: service/payment-service/Dockerfile
+    container_name: payment_service_container
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=r2dbc:mysql://mysql:3306/my_database?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root_password
+      - SPRING_R2DBC_URL=r2dbc:mysql://mysql:3306/my_database
+      - SPRING_R2DBC_USERNAME=root
+      - SPRING_R2DBC_PASSWORD=root_password
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
 
 volumes:
   mysql_data:

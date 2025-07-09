@@ -20,13 +20,13 @@ public class R2DBCPointRepository implements PointRepository {
     @Override
     public Mono<PointResult> save(PointRewardCommand command) {
         String INSERT_POINT_QUERY = """
-                INSERT INTO point_events (order_id, user_id, points, point_type)
-                VALUES (:orderId, :userId, :points, :pointType)
+                INSERT INTO point_events (order_id, buyer_id, points, point_type)
+                VALUES (:orderId, :buyerId, :points, :pointType)
                 """.trim();
 
         return databaseClient.sql(INSERT_POINT_QUERY)
                 .bind("orderId", command.getOrderId())
-                .bind("userId", command.getBuyerId())
+                .bind("buyerId", command.getBuyerId())
                 .bind("points", command.getPaymentAmount())
                 .bind("pointType", PointType.REWARD.name())
                 .fetch()

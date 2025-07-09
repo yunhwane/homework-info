@@ -5,7 +5,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
     implementation 'org.projectlombok:lombok'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     annotationProcessor 'org.projectlombok:lombok'
+
 
     // Database drivers
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -14,13 +16,11 @@ dependencies {
     // Test dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
-    testImplementation 'org.springframework.cloud:spring-cloud-stream-test-binder'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-
 }
 repositories {
     mavenCentral()
 }
+
 kotlin {
-    jvmToolchain(24)
+    jvmToolchain(21)
 }

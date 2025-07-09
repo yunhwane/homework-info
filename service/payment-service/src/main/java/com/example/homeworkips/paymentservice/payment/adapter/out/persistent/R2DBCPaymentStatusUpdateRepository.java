@@ -6,7 +6,6 @@ import com.example.homeworkips.paymentservice.payment.application.port.out.Payme
 import com.example.homeworkips.paymentservice.payment.domain.PaymentStatus;
 import com.example.homeworkips.paymentservice.point.domain.PointEvent;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
@@ -80,17 +79,20 @@ public class R2DBCPaymentStatusUpdateRepository implements PaymentStatusUpdateRe
                 .flatMap(it -> updatePaymentEventStatus(command.status(), command.orderId()))
                 .flatMap(it -> updatePaymentExtraDetails(command))
                 .flatMap(it -> selectPaymentInfoForPointEvent(command.orderId()))
-                .doOnNext(payment -> {
+                .as(transactionalOperator::transactional)
+                .flatMap(payment -> {
                     PointEvent pointEvent = PointEvent.from(
                             payment.orderId(),
                             payment.paymentKey(),
                             payment.buyerId(),
                             payment.amount()
                     );
-                    eventPublisher.publishEvent(pointEvent);
-                })
-                .as(transactionalOperator::transactional)
-                .thenReturn(true);
+                    
+                    // 트랜잭션 완료 후 이벤트 발행
+                    return Mono.fromRunnable(() -> {
+                        eventPublisher.publishEvent(pointEvent);
+                    }).thenReturn(true);
+                });
     }
 
     private Mono<Long> updatePaymentExtraDetails(PaymentStatusUpdateCommand command) {
