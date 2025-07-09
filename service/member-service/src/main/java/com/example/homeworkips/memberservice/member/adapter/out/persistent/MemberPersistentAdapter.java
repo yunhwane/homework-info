@@ -49,23 +49,31 @@ public class MemberPersistentAdapter implements
 
             List<Long> memberIds = redisMemberViewCountRepository.findTopByViewCount(direction, offset, limit);
 
-            if (!memberIds.isEmpty()) {
-                Map<Long, Member> memberMap = queryDslMemberRepository.findAllByIds(memberIds)
-                        .stream()
-                        .collect(Collectors.toMap(Member::getId, Function.identity()));
+            List<Member> members = queryDslMemberRepository.findAllByIds(memberIds);
 
-                return memberIds.stream()
-                        .map(memberMap::get)
-                        .filter(Objects::nonNull)
-                        .peek(member -> member.addViewCount(redisMemberViewCountRepository.read(member.getId())))
-                        .toList();
-            }
+            Map<Long, Long> viewCountMap = redisMemberViewCountRepository.readBatch(memberIds);
+
+            Map<Long, Member> memberMap = members.stream()
+                        .collect(Collectors.toMap(Member::getId, Function.identity()));
+                
+            return memberIds.stream()
+                    .map(memberMap::get)
+                    .filter(Objects::nonNull)
+                    .peek(member -> member.addViewCount(viewCountMap.getOrDefault(member.getId(), 0L)))
+                    .toList();
+
         }
 
-        return queryDslMemberRepository.findAll(sortType, direction, offset, limit)
-                .stream().peek(it ->
-                        it.addViewCount(redisMemberViewCountRepository.read(it.getId()))
-                ).toList();
+        List<Member> members = queryDslMemberRepository.findAll(sortType, direction, offset, limit);
+        List<Long> memberIds = members.stream().map(Member::getId).toList();
+
+        Map<Long, Long> viewCountMap = redisMemberViewCountRepository.readBatch(memberIds);
+        
+        members.forEach(member -> 
+            member.addViewCount(viewCountMap.getOrDefault(member.getId(), 0L))
+        );
+        
+        return members;
     }
 
     @Override

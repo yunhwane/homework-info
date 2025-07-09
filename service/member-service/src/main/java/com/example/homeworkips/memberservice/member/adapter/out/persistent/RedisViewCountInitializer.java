@@ -21,11 +21,8 @@ public class RedisViewCountInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         List<Member> allMembers = jpaMemberRepository.findAll();
-
-        for (Member member : allMembers) {
-            redisMemberViewCountRepository.initializeViewCount(member.getId());
-        }
-        
+        List<Long> memberIds = allMembers.stream().map(Member::getId).toList();
+        redisMemberViewCountRepository.initializeBatch(memberIds);
         log.info("Redis view count initialization completed for {} members", allMembers.size());
     }
 }
